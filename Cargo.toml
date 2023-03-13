@@ -10,5 +10,7 @@ keywords = ["primes", "id"]
 [dependencies]
 modinverse = "0.1.1"
 primal-check = "0.3.3"
-rand = "0.8.5"
 thiserror = "1.0.39"
+
+[dev-dependencies]
+rand = "0.8.5"
