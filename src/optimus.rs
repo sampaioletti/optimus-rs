@@ -37,6 +37,7 @@ impl Optimus {
     /// # Errors
     ///
     /// Will return `OptimusError` if the argument `prime` is not prime
+    /// or if a Mod Inverse cannot be found
     ///
     pub fn new_calculated(prime: u64, random: u64) -> Result<Self, OptimusError> {
         Self::new(prime, Self::calc_mod_inverse(prime as i64)?, random)
