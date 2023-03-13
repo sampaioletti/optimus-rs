@@ -5,6 +5,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "ID hashing and Obfuscation using Knuth's Algorithm"
 repository = "https://github.com/sampaioletti/optimus-rs"
+documentation = "https://docs.rs/optimus"
 keywords = ["primes", "id"]
 
 [dependencies]
