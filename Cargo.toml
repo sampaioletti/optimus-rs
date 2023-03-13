@@ -1,0 +1,14 @@
+[package]
+name = "optimus"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "ID hashing and Obfuscation using Knuth's Algorithm"
+repository = "https://github.com/sampaioletti/optimus-rs"
+keywords = ["primes", "id"]
+
+[dependencies]
+modinverse = "0.1.1"
+primal-check = "0.3.3"
+rand = "0.8.5"
+thiserror = "1.0.39"
