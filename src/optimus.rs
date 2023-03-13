@@ -1,6 +1,6 @@
 use crate::error::OptimusError;
 
-const MAX_INT: u64 = i32::MAX as u64;
+pub const MAX_INT: u64 = i32::MAX as u64;
 
 ///Optimus is used to encode and decode integers using Knuth's Hashing Algorithm.
 #[derive(Debug, Clone, Copy)]
@@ -14,9 +14,11 @@ impl Optimus {
     /// Returns an Optimus struct that can be used to encode and decode integers.
     /// A common use case is for obfuscating internal ids of database primary keys.
     /// It is imperative that you keep a record of prime, modInverse and random so that
-    /// you can decode an encoded integer correctly. random must be an integer less than MAX_INT.
+    /// you can decode an encoded integer correctly. random must be an integer less than `MAX_INT`.
     ///
-    /// Returns an Error if the number provided is not prime
+    /// # Errors
+    ///
+    /// Will return `OptimusError` if the argument `prime` is not prime
     ///
     /// CAUTION: DO NOT DIVULGE prime, modInverse and random!
     pub fn new(prime: u64, mod_inverse: u64, random: u64) -> Result<Self, OptimusError> {
@@ -30,36 +32,42 @@ impl Optimus {
         })
     }
     ///Returns an Optimus struct that can be used to encode and decode integers.
-    ///random must be an integer less than MAX_INT.
+    ///random must be an integer less than `MAX_INT`.
     ///It automatically calculates prime's mod inverse and then calls new.
+    /// # Errors
+    ///
+    /// Will return `OptimusError` if the argument `prime` is not prime
+    ///
     pub fn new_calculated(prime: u64, random: u64) -> Result<Self, OptimusError> {
         Self::new(prime, Self::calc_mod_inverse(prime as i64)?, random)
     }
     ///returns the modular inverse of a given prime number.
     ///The modular inverse is defined such that
-    ///(PRIME * MODULAR_INVERSE) & (MAX_INT_VALUE) = 1.
+    ///(`PRIME` * `MODULAR_INVERSE`) & (`MAX_INT`) = 1.
     ///
-    ///See: http://en.wikipedia.org/wiki/Modular_multiplicative_inverse
+    ///See: <http://en.wikipedia.org/wiki/Modular_multiplicative_inverse>
     ///
     ///NOTE: prime is assumed to be a valid prime. If prime is outside the bounds of
-    ///an int64, then the function panics as it can not calculate the mod inverse.
+    ///an i64, then the function panics as it can not calculate the mod inverse.
+    /// # Errors
+    /// Will return `OptimusError` if the argument `prime` is not prime
+    /// or if a mod inverse cannot be found
+    ///
     pub fn calc_mod_inverse(prime: i64) -> Result<u64, OptimusError> {
         const MAX: i64 = (MAX_INT + 1) as i64;
         if !primal_check::miller_rabin(prime as u64) {
             return Err(OptimusError::NotPrime);
         }
-        //unwrap ok as if prime inverse should exist
-        // has to be i64 or subtract overflow
-        Ok(modinverse::modinverse(prime, MAX).unwrap() as u64)
+        Ok(modinverse::modinverse(prime, MAX).ok_or(OptimusError::NoModInverse)? as u64)
     }
     ///Encodes n using Knuth's hashing algorithm.
     pub fn encode(&self, n: u64) -> u64 {
-        return ((n * self.prime) & MAX_INT) ^ self.random;
+        ((n * self.prime) & MAX_INT) ^ self.random
     }
     ///Decodes n back to the original. It will only decode correctly if the Optimus struct
     ///is consistent with what was used to encode n.
     pub fn decode(&self, n: u64) -> u64 {
-        return ((n ^ self.random) * self.mod_inverse) & MAX_INT;
+        ((n ^ self.random) * self.mod_inverse) & MAX_INT
     }
 }
 

@@ -4,4 +4,6 @@ use thiserror::Error;
 pub enum OptimusError {
     #[error("Argument Provided Not Prime")]
     NotPrime,
+    #[error("Cannoot calculate Mod Inverse for Argument Provided")]
+    NoModInverse,
 }
